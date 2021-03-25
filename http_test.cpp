@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  **/
- 
+
 #include "httplib.h"
 #include <chrono>
 #include <ctime>
@@ -41,7 +41,6 @@ int main() {
 
   // Starting HTTP server
   httplib::Server svr;
-  svr.set_logger(logger);
   svr.Get("/tx", tx);
   svr.listen("0.0.0.0", 8080);
 
@@ -49,9 +48,31 @@ int main() {
 }
 
 /**
- * Given a request/response pair, put a small log message in stdout
+ * This is a context class that to be used inside a request handler. It will
+ * log the request handling time
  */
-void logger(const httplib::Request &req, const httplib::Response &res) {
+struct RequestHandlerLogger {
+  const httplib::Request &_request;
+  const httplib::Response &_response;
+
+  const std::chrono::system_clock::time_point _startTime;
+
+  RequestHandlerLogger(const httplib::Request &req,
+                       const httplib::Response &res);
+  ~RequestHandlerLogger();
+};
+
+/**
+ * Start a context, keeping track of when the request started
+ */
+RequestHandlerLogger::RequestHandlerLogger(const httplib::Request &req,
+                                           const httplib::Response &res)
+    : _request(req), _response(res), _startTime(std::chrono::system_clock::now()) {}
+
+/**
+ * Stop the context, emitting a log message
+ */
+RequestHandlerLogger::~RequestHandlerLogger() {
   using namespace std;
 
   const auto now = std::chrono::system_clock::now();
@@ -60,10 +81,14 @@ void logger(const httplib::Request &req, const httplib::Response &res) {
                          now.time_since_epoch()) %
                      1000;
 
+  const auto timeOccurred =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now - _startTime) %
+      1000;
+
   cout << std::put_time(std::localtime(&nowAsTimeT), "%a %b %d %Y %T") << '.'
-       << std::setfill('0') << std::setw(3) << nowMs.count();
-  cout << " " << req.remote_addr << " " << req.path << " - " << res.status
-       << endl;
+       << std::setfill('0') << std::setw(3) << nowMs.count() << " "
+       << _request.remote_addr << " " << _request.path << " - " << _response.status << " - "
+       << timeOccurred.count() << "ms" << endl;
   cout.flush();
 }
 
@@ -71,6 +96,7 @@ void logger(const httplib::Request &req, const httplib::Response &res) {
  * The test transaction on PostgreSQL
  */
 void tx(const httplib::Request &req, httplib::Response &res) {
+  RequestHandlerLogger _logger(req, res);
   PGconn *conn = PQconnectdb(database_url.c_str());
 
   if (PQstatus(conn) != CONNECTION_OK) {
@@ -87,6 +113,7 @@ void tx(const httplib::Request &req, httplib::Response &res) {
       std::cout << PQresultErrorMessage(pgres) << std::endl;
       std::cout.flush();
     } else {
+      res.status = 200;
       res.set_content("Ok!", "text/plain");
     }
     PQclear(pgres);

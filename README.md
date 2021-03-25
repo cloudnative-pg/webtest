@@ -21,6 +21,11 @@ Environment variables are your friends:
 As previously said, a new connection is established per request, without any
 connection pool. Use pgbouncer if you need something like that.
 
+## Docker image
+
+A simple Docker image containing this utility can be found at
+[hub.docker.com/r/leonardoce/webtest](https://hub.docker.com/r/leonardoce/webtest).
+
 ## Thanks
 
 https://github.com/yhirose/cpp-httplib is a great tool, really.
