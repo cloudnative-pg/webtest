@@ -15,6 +15,7 @@ Environment variables are your friends:
 * `SQL_QUERY` is the SQL query that will be executed when accessing the `/tx`
   endpoint.
 
+The endpoint `/.well-known/check` will always return "ok".
 
 ## Other considerations
 

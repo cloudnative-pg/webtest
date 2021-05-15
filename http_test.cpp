@@ -20,6 +20,7 @@
 #include <libpq-fe.h>
 
 void tx(const httplib::Request &req, httplib::Response &res);
+void ok(const httplib::Request &req, httplib::Response &res);
 void logger(const httplib::Request &req, const httplib::Response &res);
 std::string get_configuration(const std::string &env_name,
                               const std::string &default_value = "");
@@ -42,6 +43,7 @@ int main() {
   // Starting HTTP server
   httplib::Server svr;
   svr.Get("/tx", tx);
+  svr.Get("/.well-known/check", ok);
   svr.listen("0.0.0.0", 8080);
 
   return 0;
@@ -120,6 +122,15 @@ void tx(const httplib::Request &req, httplib::Response &res) {
   }
 
   PQfinish(conn);
+}
+
+/**
+ * The test transaction on PostgreSQL
+ */
+void ok(const httplib::Request &req, httplib::Response &res) {
+  RequestHandlerLogger _logger(req, res);
+  res.status = 200;
+  res.set_content("Ok!", "text/plain");
 }
 
 /**
