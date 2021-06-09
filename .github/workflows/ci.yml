@@ -24,6 +24,6 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build
       run: |
-        docker build -t quay.io/leonardo_cecchi/webtest:${{ steps.get_version.outputs.VERSION }} .
+        docker build -t quay.io/leonardoce/webtest:${{ steps.get_version.outputs.VERSION }} .
     - name: Push
-      run: docker push quay.io/leonardo_cecchi/webtest:${{ steps.get_version.outputs.VERSION }}
+      run: docker push quay.io/leonardoce/webtest:${{ steps.get_version.outputs.VERSION }}

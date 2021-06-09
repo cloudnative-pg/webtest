@@ -25,7 +25,7 @@ connection pool. Use pgbouncer if you need something like that.
 ## Docker image
 
 A simple Docker image containing this utility can be found at
-[hub.docker.com/r/leonardoce/webtest](https://hub.docker.com/r/leonardoce/webtest).
+[quay.io](https://quay.io/repository/leonardoce/webtest).
 
 ## Thanks
 
