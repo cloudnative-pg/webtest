@@ -35,3 +35,4 @@ jobs:
       with:
         platforms: "linux/amd64,linux/arm64,linux/ppc64le,linux/s390x"
         tags: ${{ steps.get_version.outputs.VERSION }}
+        push: true
