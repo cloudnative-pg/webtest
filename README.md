@@ -15,6 +15,16 @@ Environment variables are your friends:
 * `SQL_QUERY` is the SQL query that will be executed when accessing the `/tx`
   endpoint.
 
+* `KEEP_ALIVE_MAX_COUNT` TCP keepalive configuration
+
+* `KEEP_ALIVE_TIMEOUT` TCP keepalive configuration
+
+* `READ_TIMEOUT` HTTP request handling read timeout
+
+* `WRITE_TIMEOUT` HTTP request handling write timeout
+
+* `IDLE_INTERVAL` HTTP request timeout idle interval
+
 The endpoint `/.well-known/check` will always return "ok".
 
 ## Other considerations
