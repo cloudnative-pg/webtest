@@ -25,6 +25,7 @@ void ok(const httplib::Request &req, httplib::Response &res);
 void logger(const httplib::Request &req, const httplib::Response &res);
 std::string get_configuration(const std::string &env_name,
                               const std::string &default_value = "");
+void set_server_option_from_env(const std::string& env_name, std::function<void(int)>setter);
 
 /**
  * The database URL to be used as a libpq connection string
@@ -45,9 +46,37 @@ int main() {
   httplib::Server svr;
   svr.Get("/tx", tx);
   svr.Get("/.well-known/check", ok);
+
+  // Keepalive settings
+  set_server_option_from_env("KEEP_ALIVE_MAX_COUNT", [&svr](int value){ svr.set_keep_alive_max_count(value); });
+  set_server_option_from_env("KEEP_ALIVE_TIMEOUT", [&svr](int value){ svr.set_keep_alive_timeout(value); });
+
+  // Timeout settings
+  set_server_option_from_env("READ_TIMEOUT", [&svr](int value){ svr.set_read_timeout(value); });
+  set_server_option_from_env("WRITE_TIMEOUT", [&svr](int value){ svr.set_write_timeout(value); });
+  set_server_option_from_env("IDLE_INTERVAL", [&svr](int value){ svr.set_idle_interval(value); });
+
   svr.listen("0.0.0.0", 8080);
 
   return 0;
+}
+
+/**
+ * This is an helper function to set an HTTP server property from
+ * an environment variable.
+ * The property to be set is an integer.
+ */
+void set_server_option_from_env(const std::string& env_name, std::function<void(int)>setter) {
+  const std::string env_value = get_configuration(env_name);
+
+  if (!env_value.empty()) {
+    try {
+      std::cout << env_name << ": " << std::quoted(env_value) << std::endl;
+      setter(std::stoi(env_value));
+    } catch(std::exception &e) {
+      std::cout << "Error parsing " << env_name << " as an integer" << std::endl;
+    }
+  }
 }
 
 /**
