@@ -1,0 +1,40 @@
+# GitVote configuration for cloudnative-pg/webtest.
+#
+# Rendered by cnpg-infra's scripts/render-gitvote-config.sh -- see
+# cnpg-infra's gitvote-policy.yaml and scripts/check-gitvote-config.sh /
+# fix-gitvote-config.sh for how this file is generated and enforced.
+#
+# Voters are this repository's own webtest-owners GitHub team (repo-tiers.yaml's
+# owners field is what populates it; see sync-project-owner-teams.sh).
+# Component Owner-level decisions per CONTRIBUTOR_LADDER.md are scoped to
+# the repository, not org-wide. The two profiles below mirror
+# CONTRIBUTOR_LADDER.md's two repository-level thresholds:
+#   - default:         simple majority, Contributor promotion/removal
+#   - component-owner:  two-thirds majority, Component Owner
+#                        promotion/removal (/vote-component-owner)
+automation:
+  enabled: false
+  rules:
+    - patterns: []
+      profile: default
+
+profiles:
+  default:
+    duration: 1w
+    pass_threshold: 50
+    allowed_voters:
+      teams:
+        - webtest-owners
+      users: []
+    close_on_passing: true
+    close_on_passing_min_wait: "10 minutes"
+
+  component-owner:
+    duration: 1w
+    pass_threshold: 66
+    allowed_voters:
+      teams:
+        - webtest-owners
+      users: []
+    close_on_passing: true
+    close_on_passing_min_wait: "10 minutes"
